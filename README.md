@@ -1,5 +1,7 @@
 # Securing localstack instances
 
+![](./idea.excalidraw.svg)
+
 ## Requirements
 
 - This project
