@@ -21,8 +21,6 @@ location / {
 
 ### Configure forwarding from the authorizer service
 
+In config.json, configure the property `logLevel` (debug > info > warn > error), `localStackUri` and `accessKeys` to your needs.
 
-
-
-
- docker run -it --name ls-security --publish 4387:4387 -e LOG_LEVEL=debug -v /root/authorizer.js:/root/authorizer.js node:19-alpine /root/authorizer.js
+The property whitelistedUris is a list of Regex patterns that allow requests to be directly passed to LocalStack without any verification. This is useful for allowing customer-based configurations, e.g. ApiGateways available to the public.
