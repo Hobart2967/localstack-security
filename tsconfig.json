@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "es2015",
+    "lib": [
+      "ES2015",
+      "ES2016.Array.Include",
+      "ES2017.Object",
+      "ES2017.String"
+    ],
+    "outDir": "./obj",
+    "downlevelIteration": true,
+
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "alwaysStrict": true,
+
+    "moduleResolution": "node",
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+  },
+  "include": [
+    "./src",
+  ]
+}

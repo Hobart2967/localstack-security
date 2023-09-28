@@ -1,0 +1,1 @@
+export const WebServer = Symbol.for('WebServer');
