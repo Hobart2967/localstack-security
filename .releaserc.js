@@ -22,6 +22,7 @@ module.exports = {
       "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
     }],
     ["@codedependant/semantic-release-docker", {
+      dockerImage: 'hobart2967/localstack-security',
       dockerFile: './docker/Dockerfile'
     }]
   ]
