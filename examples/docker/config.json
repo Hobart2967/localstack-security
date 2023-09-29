@@ -1,0 +1,10 @@
+{
+  "logLevel": "debug",
+  "port": 4387,
+  "localStackUri": "http://localstack:4566",
+  "whitelistedUris": [
+  ],
+  "accessKeys": {
+    "my-access-key": "my_secret_key"
+  }
+}

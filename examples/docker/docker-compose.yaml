@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  localstack:
+    image: gresau/localstack-persist # instead of localstack/localstack
+    environment:
+      SKIP_SSL_CERT_DOWNLOAD: 1
+    volumes:
+      - "./my-localstack-data:/persisted-data"
+    networks:
+      - backend
+  localstack-security:
+    image: localstack-security
+    volumes:
+      - "./config.json:/usr/share/localstack-security/config.json"
+    networks:
+      - backend
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/proxy.conf
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 8675:8675
+
+networks:
+  backend:
+    internal: true
+  frontend:
+    internal: false
