@@ -5,7 +5,8 @@
   "scripts": {
     "build": "yarn build:server && yarn build:image",
     "build:server": "webpack",
-    "build:image": "docker build -t localstack-security -f docker/Dockerfile . --no-cache"
+    "build:image": "docker build -t localstack-security -f docker/Dockerfile . --no-cache",
+    "release": "semantic-release"
   },
   "main": "./dist/my-lib.umd.cjs",
   "module": "./dist/my-lib.js",
@@ -17,6 +18,7 @@
     }
   },
   "dependencies": {
+    "@semantic-release/git": "^10.0.1",
     "@smithy/signature-v4": "^2.0.9",
     "aws4": "^1.12.0",
     "aws4-sign": "^0.2.0",
@@ -33,11 +35,15 @@
     "aws4": "^1.12.0"
   },
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/github": "^9.2.1",
+    "@semantic-release/release-notes-generator": "^12.0.0",
     "@types/aws4": "^1.11.4",
     "@types/crypto-js": "^4.1.2",
     "@types/express": "^4.17.17",
     "@types/express-http-proxy": "^1.6.4",
     "@types/node": "^20.6.3",
+    "semantic-release": "^22.0.5",
     "ts-loader": "^9.4.4",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
