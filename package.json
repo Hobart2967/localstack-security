@@ -35,6 +35,7 @@
     "aws4": "^1.12.0"
   },
   "devDependencies": {
+    "@codedependant/semantic-release-docker": "^4.4.0",
     "@semantic-release/commit-analyzer": "^11.0.0",
     "@semantic-release/github": "^9.2.1",
     "@semantic-release/release-notes-generator": "^12.0.0",

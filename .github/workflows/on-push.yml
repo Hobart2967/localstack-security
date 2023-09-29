@@ -6,13 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Node 16
+      - name: Node Setup
         uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
       - run: yarn
 
-      - run: yarn build
+      - run: yarn build:server
 
       - run: yarn release
         if: ${{ github.ref_name }} == 'master'
