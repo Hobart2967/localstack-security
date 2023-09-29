@@ -16,5 +16,3 @@ jobs:
 
       - run: yarn release
         if: ${{ github.ref_name }} == 'master'
-        env:
-          GH_TOKEN: ${{ }}
