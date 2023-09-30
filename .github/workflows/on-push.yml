@@ -23,4 +23,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-        if: ${{ github.ref_name }} == 'master'
+        if: ${{ github.ref_name == 'main' }}
