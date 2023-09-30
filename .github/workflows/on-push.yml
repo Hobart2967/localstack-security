@@ -7,8 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          echo $DOCKER_REGISTRY_USER
-          echo $DOCKER_REGISTRY_PASSWORD
+          echo $
+          echo $
 
       - name: Node Setup
         uses: actions/setup-node@v3
@@ -19,4 +19,8 @@ jobs:
       - run: yarn build:server
 
       - run: yarn release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
         if: ${{ github.ref_name }} == 'master'

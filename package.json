@@ -6,7 +6,7 @@
     "build": "yarn build:server && yarn build:image",
     "build:server": "webpack",
     "build:image": "docker build -t localstack-security -f docker/Dockerfile . --no-cache",
-    "release": "GITHUB_TOKEN=$GH_TOKEN semantic-release"
+    "release": "semantic-release"
   },
   "main": "./dist/my-lib.umd.cjs",
   "module": "./dist/my-lib.js",
