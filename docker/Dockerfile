@@ -6,4 +6,6 @@ WORKDIR /usr/share/localstack-security
 COPY dist .
 COPY config.json .
 
+EXPOSE 4387
+
 ENTRYPOINT [ "node", "./index.js" ]
