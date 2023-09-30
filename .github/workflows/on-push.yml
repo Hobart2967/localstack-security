@@ -6,6 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: |
+          echo $DOCKER_REGISTRY_USER
+          echo $DOCKER_REGISTRY_PASSWORD
+
       - name: Node Setup
         uses: actions/setup-node@v3
         with:
