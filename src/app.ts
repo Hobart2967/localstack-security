@@ -33,14 +33,26 @@ export class App {
   public main(): void {
     this._logger.info('Starting localstack security layer... Running on log level: ' + (this._config.logLevel || 'info'));
 
+    this.setupRawBodyParsing();
     this.setupRequestLogging();
     this.setupKeyVerification();
-
     this._webServer.listen(this._config.port, () => this._logger.info(`LocalStack security layer is running! http://localhost:${this._config.port}`))
   }
   //#endregion
 
   //#region Private Methods
+  private setupRawBodyParsing() {
+    this._webServer.use(function(req, _, next){
+      var data = "";
+
+      req.on('data', (chunk) => data += chunk)
+      req.on('end', () => {
+         (req as RequestWithContext).rawBody = data;
+         next();
+      });
+    });
+  }
+
   private setupKeyVerification(): void {
     const proxyMw = createProxyMiddleware({
       target: this._config.localStackUri,
@@ -133,7 +145,7 @@ export class App {
       this._logger.info(`${prefix} START`);
       this._logger.debug(`${prefix} HTTP Headers received: ${JSON.stringify(request.headers)}`);
       this._logger.debug(`${prefix} Query Parameters received: ${JSON.stringify(request.query)}`);
-      this._logger.debug(`${prefix} Body received: ${request.body}`);
+      this._logger.debug(`${prefix} Body received: ${request.rawBody}`);
 
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
