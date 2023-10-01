@@ -132,20 +132,17 @@ export class RequestVerificationService {
   }
 
   private getCleansedHeaders(request: RequestWithContext, incomingSignature: ParsedSignature): OutgoingHttpHeaders {
-    const headers = Object.assign({}, request.headers);
+    const cleansedHeaders: OutgoingHttpHeaders = Object.entries(request.headers)
+      .filter(([header]) => !incomingSignature.signedHeaders.includes(header.toLowerCase()))
+      .reduce((prev, [header, value]) => ({
+        ...prev,
+        [header.toLowerCase()]: value
+      }), {});
 
-    delete headers.authorization;
-    delete headers['Authorization'];
 
-    const cleansedHeaders = Object.keys(headers)
-      .map(x => x.toLowerCase())
-      .filter(x => !incomingSignature.signedHeaders.includes(x));
+    this._logger.debug('Cleansed headers: ' + JSON.stringify(cleansedHeaders));
 
-    for (const header of cleansedHeaders) {
-      delete headers[header];
-    }
-
-    return headers;
+    return cleansedHeaders;
   }
   //#endregion
 }
