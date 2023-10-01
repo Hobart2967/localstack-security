@@ -51,17 +51,6 @@ export class RequestVerificationService {
       format: format.combine(format.timestamp())
     });
 
-    /*
-
-    }createLogDefaultOptions(
-      this._logger.level, (info) => {
-        const { message } = info;
-        info.message = `[${request.requestId}] ${message}`;
-        const result = this._logger.format.transform(info);
-        return result as any;
-      }));
-      */
-
     logger.debug(`Verifying signature of incoming request`);
 
     const result = this.checkSignature(request, logger);
