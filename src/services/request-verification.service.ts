@@ -60,9 +60,21 @@ export class RequestVerificationService {
     }
 
     logger.debug(`Bad signature. Rejecting request.`);
-    response.setHeader('Content-Type', 'application/json');
+    response.setHeader('x-amzn-RequestId', request.requestId);
+    response.setHeader('Content-Type', 'application/xml');
     response.status(result.status);
-    response.json(result.body);
+
+    const responseText = `
+      <ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+        <Error>
+          <Type>Sender</Type>
+          <Code>InvalidClientTokenId</Code>
+          <Message>${result.body.message}</Message>
+        </Error>
+        <RequestId>${request.requestId}</RequestId>
+      </ErrorResponse>`;
+
+    response.send(responseText);
 
     next();
   }
