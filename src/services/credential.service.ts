@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { Configuration } from '../models/configuration.interface';
 import { Logger } from 'winston';
+import { Configuration } from '../models/configuration.interface';
 
 @injectable()
 export class CredentialService {

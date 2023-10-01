@@ -1,9 +1,8 @@
 import express, { Application } from 'express';
 import { Container, interfaces } from 'inversify';
 import { WebServer } from '../services/web-server.symbol';
-import { Logger, createLogger, format, transports } from 'winston';
+import { Logger, createLogger } from 'winston';
 import { App } from '../app';
-import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
 import { sign } from 'aws4';
@@ -12,8 +11,8 @@ import { CredentialService } from '../services/credential.service';
 import { RequestVerificationService } from '../services/request-verification.service';
 import { SignatureParserService } from '../services/signature-parser.service';
 import { SignatureService } from '../services/signature.service';
-import { Configuration } from '../models/configuration.interface';
 import { createLogDefaultOptions, logFormatter } from '../services/log-formatter';
+import { Configuration } from '../models/configuration.interface';
 
 const getClassNameFromRequest = (context: interfaces.Context) =>
   (context.currentRequest.parentRequest &&

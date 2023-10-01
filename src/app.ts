@@ -5,8 +5,9 @@ import { WebServer } from './services/web-server.symbol';
 import { UuidService } from './services/uuid.service';
 import { RequestWithContext } from './models/request-with-context.model';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { Configuration } from './models/configuration.interface';
+import { RequestMapper, RequestMapperType } from './models/request-mapper.interface';
 import { RequestVerificationService } from './services/request-verification.service';
+import { Configuration } from './models/configuration.interface';
 
 @injectable()
 export class App {
@@ -47,8 +48,82 @@ export class App {
       ws: true
     });
 
-    this._webServer.use('/', (req, res, next) =>
-      this._requestVerificationService.handle(req as RequestWithContext, res, next, proxyMw));
+    this._webServer.use('/', (request, response, next) => {
+      const result = this._requestVerificationService.handle(request as RequestWithContext);
+
+      if (result.status === 204) {
+        this._logger.debug(`Signature ok, forwarding to backend.`);
+
+        this.modifyRequest(request as RequestWithContext);
+
+        return proxyMw(request, response, next);
+      }
+
+      this._logger.debug(`Bad signature. Rejecting request.`);
+      response.setHeader('x-amzn-RequestId', (request as RequestWithContext).requestId);
+      response.setHeader('Content-Type', 'application/xml');
+      response.status(result.status);
+
+      const responseText = `
+        <ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+          <Error>
+            <Type>Sender</Type>
+            <Code>InvalidClientTokenId</Code>
+            <Message>${result.body.message}</Message>
+          </Error>
+          <RequestId>${(request as RequestWithContext).requestId}</RequestId>
+        </ErrorResponse>`;
+
+      response.send(responseText);
+
+      next();
+    });
+  }
+
+  private modifyRequest(request: RequestWithContext) {
+    const mapperProcessors = new Map<RequestMapperType, (request: RequestWithContext, mapper: RequestMapper) => void>([
+      ['header', (request, mapper) => this.modifyHeader(request, mapper)],
+      ['url', (request, mapper) => this.modifyUrl(request, mapper)]
+    ])
+
+    for (const mapper of this._config.requestMappers) {
+      const processor = mapperProcessors.get(mapper.type);
+      processor!(request, mapper);
+    }
+  }
+
+  private modifyUrl(request: RequestWithContext, mapper: RequestMapper): void {
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    const resultingUrl = new URL(url.href.replace(mapper.match, mapper.convert));
+    request.url = resultingUrl.pathname;
+    request.query = Array
+      .from(resultingUrl.searchParams.entries())
+      .reduce((prev, [k, v]) => ({
+        ...prev,
+        [k]: v
+      }), {});
+
+    request.protocol = url.protocol;
+    request.hostname = url.hostname;
+    request.headers.host = url.hostname;
+  }
+
+  private modifyHeader(request: RequestWithContext, mapper: RequestMapper): void {
+    const value = request.headers[mapper.options!.name.toLowerCase()] as string;
+    if (!value && mapper.match != null) {
+      return;
+    }
+
+    if (value && mapper.match == null) {
+      return;
+    }
+
+    if (mapper.match && value) {
+      request.headers[mapper.options!.name.toLowerCase()] = value.replace(new RegExp(mapper.match), mapper.convert);
+      return;
+    }
+
+    request.headers[mapper.options!.name.toLowerCase()] = mapper.convert;
   }
 
   private setupRequestLogging(): void {

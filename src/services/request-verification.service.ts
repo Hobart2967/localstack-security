@@ -1,7 +1,5 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { VerificationResult } from '../models/verification-result.interface';
 import { inject, injectable } from 'inversify';
-import { Configuration } from '../models/configuration.interface';
 import { Logger, format } from 'winston';
 import { RequestWithContext } from '../models/request-with-context.model';
 import { SignatureParserService } from './signature-parser.service';
@@ -9,7 +7,7 @@ import { ParsedSignature } from '../models/parsed-signature.interface';
 import { SignatureService } from './signature.service';
 import { CredentialService } from './credential.service';
 import { OutgoingHttpHeaders } from 'http2';
-import { createLogDefaultOptions, logFormatter } from './log-formatter';
+import { Configuration } from '../models/configuration.interface';
 
 @injectable()
 export class RequestVerificationService {
@@ -46,37 +44,13 @@ export class RequestVerificationService {
   //#endregion
 
   //#region Public Method
-  public handle(request: RequestWithContext, response: Response, next: NextFunction, proxy: RequestHandler): void {
+  public handle(request: RequestWithContext): VerificationResult {
     const logger = this._logger.child({
       format: format.combine(format.timestamp())
     });
 
     logger.debug(`Verifying signature of incoming request`);
-
-    const result = this.checkSignature(request, logger);
-    if (result.status === 204) {
-      logger.debug(`Signature ok, forwarding to backend.`);
-      return proxy(request, response, next);
-    }
-
-    logger.debug(`Bad signature. Rejecting request.`);
-    response.setHeader('x-amzn-RequestId', request.requestId);
-    response.setHeader('Content-Type', 'application/xml');
-    response.status(result.status);
-
-    const responseText = `
-      <ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-        <Error>
-          <Type>Sender</Type>
-          <Code>InvalidClientTokenId</Code>
-          <Message>${result.body.message}</Message>
-        </Error>
-        <RequestId>${request.requestId}</RequestId>
-      </ErrorResponse>`;
-
-    response.send(responseText);
-
-    next();
+    return this.checkSignature(request, logger);
   }
   //#endregion
 

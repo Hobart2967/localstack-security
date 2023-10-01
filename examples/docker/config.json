@@ -4,6 +4,11 @@
   "localStackUri": "http://localstack:4566",
   "whitelistedUris": [
   ],
+  "requestMappers": [{
+    "type": "url",
+    "match": "^(http|https)://s3.cloud.codewyre.net/(.*)",
+    "convert": "$1://s3.localhost.localstack.cloud(.*)"
+  }],
   "accessKeys": {
     "my-access-key": "my_secret_key"
   }
