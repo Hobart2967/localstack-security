@@ -43,17 +43,25 @@ export class App {
 
   //#region Private Methods
   private setupBodyParsing() {
-    this._webServer.use(function(req, _, next){
-      var data = "";
 
-      req.on('data', (chunk) => data += chunk)
-      req.on('end', () => {
-         (req as RequestWithContext).rawBody = data;
-         next();
-      });
+    this._webServer.use(async (req, res, next) => {
+      const promises = [
+        new Promise<void>(resolve => bodyParser.json()(req, res, resolve)),
+        new Promise<void>(resolve => bodyParser.urlencoded({ extended: true })(req, res, resolve)),
+        new Promise<void>(resolve => {
+          var data = "";
+
+          req.on('data', (chunk) => data += chunk)
+          req.on('end', () => {
+            (req as RequestWithContext).rawBody = data;
+            resolve();
+          });
+        })
+      ];
+
+      await Promise.all(promises);
+      next();
     });
-    this._webServer.use(bodyParser.json());
-    this._webServer.use(express.urlencoded({ extended: true }));
   }
 
   private setupKeyVerification(): void {
@@ -149,7 +157,7 @@ export class App {
       this._logger.debug(`${prefix} HTTP Headers received: ${JSON.stringify(request.headers)}`);
       this._logger.debug(`${prefix} Query Parameters received: ${JSON.stringify(request.query)}`);
       this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
-      this._logger.debug(`${prefix} Body received (RAW): ${request.body}`);
+      this._logger.debug(`${prefix} Body received: ${JSON.stringify(request.body)}`);
 
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
