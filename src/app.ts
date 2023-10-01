@@ -133,6 +133,7 @@ export class App {
       this._logger.info(`${prefix} START`);
       this._logger.debug(`${prefix} HTTP Headers received: ${JSON.stringify(request.headers)}`);
       this._logger.debug(`${prefix} Query Parameters received: ${JSON.stringify(request.query)}`);
+      this._logger.debug(`${prefix} Body received: ${request.body}`);
 
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
