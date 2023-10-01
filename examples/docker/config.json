@@ -6,8 +6,8 @@
   ],
   "requestMappers": [{
     "type": "url",
-    "match": "^(http|https)://s3.cloud.codewyre.net/(.*)",
-    "convert": "$1://s3.localhost.localstack.cloud(.*)"
+    "match": "^(http|https)://s3\\.my\\.cloud\\.com/?(.*)",
+    "convert": "$1://s3.localhost.localstack.cloud/$2"
   }],
   "accessKeys": {
     "my-access-key": "my_secret_key"
