@@ -69,7 +69,15 @@ export class App {
     const proxyMw = createProxyMiddleware({
       target: this._config.localStackUri,
       changeOrigin: true,
-      onProxyReq: fixRequestBody,
+      onProxyReq: function fixRequestBody(proxyReq, req) {
+        const requestBody = (req as RequestWithContext).rawBody;
+        if (!requestBody) {
+            return;
+        }
+
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(requestBody));
+        proxyReq.write(requestBody);
+      },
       ws: true
     });
 
