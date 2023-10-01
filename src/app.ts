@@ -4,11 +4,12 @@ import { Logger } from 'winston';
 import { WebServer } from './services/web-server.symbol';
 import { UuidService } from './services/uuid.service';
 import { RequestWithContext } from './models/request-with-context.model';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { RequestMapper, RequestMapperType } from './models/request-mapper.interface';
 import { RequestVerificationService } from './services/request-verification.service';
 import { Configuration } from './models/configuration.interface';
 import bodyParser from 'body-parser';
+
 @injectable()
 export class App {
   //#region Ctor
@@ -68,6 +69,7 @@ export class App {
     const proxyMw = createProxyMiddleware({
       target: this._config.localStackUri,
       changeOrigin: true,
+      onProxyReq: fixRequestBody,
       ws: true
     });
 
