@@ -103,7 +103,6 @@ export class App {
         [k]: v
       }), {});
 
-    request.hostname = resultingUrl.hostname;
     request.headers.host = resultingUrl.hostname;
   }
 
