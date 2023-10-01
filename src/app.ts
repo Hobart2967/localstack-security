@@ -1,4 +1,4 @@
-import { Application, NextFunction, Request, Response } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'winston';
 import { WebServer } from './services/web-server.symbol';
@@ -8,7 +8,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { RequestMapper, RequestMapperType } from './models/request-mapper.interface';
 import { RequestVerificationService } from './services/request-verification.service';
 import { Configuration } from './models/configuration.interface';
-
+import bodyParser from 'body-parser';
 @injectable()
 export class App {
   //#region Ctor
@@ -33,7 +33,8 @@ export class App {
   public main(): void {
     this._logger.info('Starting localstack security layer... Running on log level: ' + (this._config.logLevel || 'info'));
 
-    this.setupRawBodyParsing();
+    this.setupBodyParsing();
+
     this.setupRequestLogging();
     this.setupKeyVerification();
     this._webServer.listen(this._config.port, () => this._logger.info(`LocalStack security layer is running! http://localhost:${this._config.port}`))
@@ -41,7 +42,7 @@ export class App {
   //#endregion
 
   //#region Private Methods
-  private setupRawBodyParsing() {
+  private setupBodyParsing() {
     this._webServer.use(function(req, _, next){
       var data = "";
 
@@ -51,6 +52,8 @@ export class App {
          next();
       });
     });
+    this._webServer.use(bodyParser.json());
+    this._webServer.use(express.urlencoded({ extended: true }));
   }
 
   private setupKeyVerification(): void {
@@ -145,7 +148,8 @@ export class App {
       this._logger.info(`${prefix} START`);
       this._logger.debug(`${prefix} HTTP Headers received: ${JSON.stringify(request.headers)}`);
       this._logger.debug(`${prefix} Query Parameters received: ${JSON.stringify(request.query)}`);
-      this._logger.debug(`${prefix} Body received: ${request.rawBody}`);
+      this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
+      this._logger.debug(`${prefix} Body received (RAW): ${request.body}`);
 
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
