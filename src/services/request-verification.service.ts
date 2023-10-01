@@ -95,15 +95,17 @@ export class RequestVerificationService {
 
     const headers = this.getCleansedHeaders(request, incomingSignature);
 
-    const signedCounterCheckRequest = this._signatureService.signRequestData(accessKeyId, secretKey, {
-      host: request.hostname,
-      method: request.method,
-      path: url,
-      body: request.rawBody || undefined,
-      service: incomingSignature.credential.service,
-      headers,
-      region: incomingSignature.credential.region
-    });
+    const signedCounterCheckRequest = this._signatureService.signRequestData(
+      accessKeyId,
+      secretKey, {
+        host: request.hostname,
+        method: request.method,
+        path: url,
+        body: request.rawBody || request.body || undefined,
+        service: incomingSignature.credential.service,
+        headers,
+        region: incomingSignature.credential.region
+      });
 
     const resultHeaders = signedCounterCheckRequest.headers as OutgoingHttpHeaders;
     if (resultHeaders['Authorization']) {
@@ -122,7 +124,7 @@ export class RequestVerificationService {
     if (signature !== incomingSignature.signature) {
       this._logger.debug(
         `Signatures do not match. This indicates a wrong signature supplied in the request.` +
-        `(Incoming=${incomingSignature};Generated=${signature})`);
+        `(Incoming=${incomingSignature.signature}(${incomingSignature.signedHeaders.join(';')});Generated=${signature}(${signedCounterCheckAuth.signedHeaders.join(';')}))`);
       return this.unauthorized;
     }
 
