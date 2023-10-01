@@ -103,9 +103,8 @@ export class App {
         [k]: v
       }), {});
 
-    request.protocol = url.protocol;
-    request.hostname = url.hostname;
-    request.headers.host = url.hostname;
+    request.hostname = resultingUrl.hostname;
+    request.headers.host = resultingUrl.hostname;
   }
 
   private modifyHeader(request: RequestWithContext, mapper: RequestMapper): void {
