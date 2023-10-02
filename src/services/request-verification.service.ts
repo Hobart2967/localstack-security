@@ -132,12 +132,15 @@ export class RequestVerificationService {
       delete resultHeaders['Authorization'];
     }
 
+    this._logger.debug('Resulting authorization header: ' + resultHeaders['authorization']);
+
     let signedCounterCheckAuth: ParsedSignature
     try {
       signedCounterCheckAuth = this._signatureParser.parse(signedCounterCheckRequest as RequestWithContext);
     } catch {
       return this.unauthorized;
     }
+
     const signature = signedCounterCheckAuth.signature;
 
     if (signature !== incomingSignature.signature) {
