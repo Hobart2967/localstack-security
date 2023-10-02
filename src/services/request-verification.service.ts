@@ -112,7 +112,7 @@ export class RequestVerificationService {
       host: request.hostname,
       method: request.method,
       path: url,
-      body: request.rawBody || request.body || undefined,
+      body: request.rawBody || undefined,
       service: incomingSignature.credential.service,
       headers,
       region: incomingSignature.credential.region,
