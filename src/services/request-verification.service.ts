@@ -143,7 +143,7 @@ export class RequestVerificationService {
     if (signature !== incomingSignature.signature) {
       this._logger.debug(
         `Signatures do not match. This indicates a wrong signature supplied in the request.` +
-        `(Incoming=${incomingSignature.signature}(${incomingSignature.signedHeaders.join(';')});Generated=${signature}(${signedCounterCheckAuth.signedHeaders.join(';')}))`);
+        `(Incoming=${JSON.stringify(incomingSignature)};Generated=${JSON.stringify(signedCounterCheckAuth)})`);
       return this.unauthorized;
     }
 
