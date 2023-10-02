@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "ES5",
     "module": "es2015",
     "lib": [
@@ -27,6 +28,9 @@
 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "aws4": ["./ext/aws4/*"]
+    }
   },
   "include": [
     "./src",

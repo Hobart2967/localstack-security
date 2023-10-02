@@ -1,5 +1,5 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
+
 const {
   NODE_ENV = 'production',
 } = process.env;
@@ -31,6 +31,9 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    alias: {
+      aws4: path.resolve(__dirname, 'ext/aws4'),
+    },
+    extensions: ['.ts', '.js']
   }
 }
