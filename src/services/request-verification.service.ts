@@ -108,18 +108,23 @@ export class RequestVerificationService {
 
     this._logger.debug('Ignored headers upon signing: ' + JSON.stringify(extraHeadersToIgnore));
 
+    const requestData = {
+      host: request.hostname,
+      method: request.method,
+      path: url,
+      body: request.rawBody || request.body || undefined,
+      service: incomingSignature.credential.service,
+      headers,
+      region: incomingSignature.credential.region,
+      extraHeadersToIgnore
+    } as any;
+
+    this._logger.debug('Counter-Check request build: ' + JSON.stringify(requestData));
+
     const signedCounterCheckRequest = this._signatureService.signRequestData(
       accessKeyId,
-      secretKey, {
-        host: request.hostname,
-        method: request.method,
-        path: url,
-        body: request.rawBody || request.body || undefined,
-        service: incomingSignature.credential.service,
-        headers,
-        region: incomingSignature.credential.region,
-        extraHeadersToIgnore
-      } as any);
+      secretKey,
+      requestData);
 
     const resultHeaders = signedCounterCheckRequest.headers as OutgoingHttpHeaders;
     if (resultHeaders['Authorization']) {
