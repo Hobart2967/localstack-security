@@ -95,6 +95,15 @@ export class RequestVerificationService {
 
     const headers = this.getCleansedHeaders(request, incomingSignature);
 
+    const extraHeadersToIgnore =
+      Object
+        .keys(request.headers)
+        .map(x => x.toLowerCase())
+        .filter(x => !incomingSignature.signedHeaders.includes(x))
+        .reduce((prev, cur) => ({ ...prev, [cur]: true }), {});
+
+    this._logger.debug('Ignored headers upon signing: ' + JSON.stringify(extraHeadersToIgnore));
+
     const signedCounterCheckRequest = this._signatureService.signRequestData(
       accessKeyId,
       secretKey, {
@@ -104,8 +113,9 @@ export class RequestVerificationService {
         body: request.rawBody || request.body || undefined,
         service: incomingSignature.credential.service,
         headers,
-        region: incomingSignature.credential.region
-      });
+        region: incomingSignature.credential.region,
+        extraHeadersToIgnore
+      } as any);
 
     const resultHeaders = signedCounterCheckRequest.headers as OutgoingHttpHeaders;
     if (resultHeaders['Authorization']) {
