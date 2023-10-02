@@ -95,12 +95,16 @@ export class RequestVerificationService {
 
     const headers = this.getCleansedHeaders(request, incomingSignature);
 
-    const extraHeadersToIgnore =
+    const extraHeadersToIgnore: { [header: string]: boolean } =
       Object
         .keys(request.headers)
         .map(x => x.toLowerCase())
         .filter(x => !incomingSignature.signedHeaders.includes(x))
         .reduce((prev, cur) => ({ ...prev, [cur]: true }), {});
+
+    if (!request.headers['content-type']) {
+      extraHeadersToIgnore['content-type'] = true;
+    }
 
     this._logger.debug('Ignored headers upon signing: ' + JSON.stringify(extraHeadersToIgnore));
 
