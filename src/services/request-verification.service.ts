@@ -133,7 +133,7 @@ export class RequestVerificationService {
 
   private getCleansedHeaders(request: RequestWithContext, incomingSignature: ParsedSignature): OutgoingHttpHeaders {
     const cleansedHeaders: OutgoingHttpHeaders = Object.entries(request.headers)
-      .filter(([header]) => !incomingSignature.signedHeaders.includes(header.toLowerCase()))
+      .filter(([header]) => incomingSignature.signedHeaders.includes(header.toLowerCase()))
       .reduce((prev, [header, value]) => ({
         ...prev,
         [header.toLowerCase()]: value
