@@ -169,14 +169,21 @@ export class App {
       this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
       this._logger.debug(`${prefix} Body received: ${JSON.stringify(request.body)}`);
 
-      var data = "";
+      var responsePayload = "";
 
-      response.on('data', (chunk) => data += chunk)
+      const sock  = req.socket;
+      const write = sock.write.bind(sock);
+
+      (sock as any).write = (data: any, encoding: BufferEncoding, callback: any) => {
+        responsePayload += data;
+        write(data, encoding, callback);
+      }
+
+      sock.on('close', () => console.log('DONE'));
 
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
-        this._logger.debug(`${prefix} Headers sent: ${JSON.stringify(response.headersSent)}`);
-        this._logger.debug(`${prefix} Body sent: ${data}`);
+        this._logger.debug(`${prefix} Response sent: ${responsePayload}`);
       });
 
       next();
