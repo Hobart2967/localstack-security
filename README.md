@@ -61,6 +61,9 @@ If you kill either one of LocalStack or NGINX, you will need to ensure that only
 
 The service layer is accessing a `config.json` which is located at the current working directory chosen when starting the service. You can configure the following properties:
 
+IMPORTANT: LocalStack by default will only accept access keys prefixed with LKIA or LSIA. If you want to change this, please follow
+https://docs.localstack.cloud/references/credentials/ for more info.
+
 ```json
 {
 	// Least level of logging (can be debug, info, warn or error)

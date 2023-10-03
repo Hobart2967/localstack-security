@@ -12,15 +12,19 @@ import { Configuration } from '../models/configuration.interface';
 @injectable()
 export class RequestVerificationService {
   //#region Private Fields
-  private readonly unauthorized: VerificationResult = {
+  private readonly unauthorized: Partial<VerificationResult> = {
     status: 401,
     body: { message: 'The security token included in the request is invalid' }
   };
-  private readonly noAuth: VerificationResult = {
+  private readonly unknownKey: Partial<VerificationResult> = {
+    status: 401,
+    body: { message: 'The AWS Access Key Id you provided does not exist in our records.' }
+  };
+  private readonly noAuth: Partial<VerificationResult> = {
     status: 401,
     body: { message: 'Missing authentication token' }
   };
-  private readonly ok: VerificationResult = {
+  private readonly ok: Partial<VerificationResult> = {
     status: 204
   };
   //#endregion
@@ -44,7 +48,7 @@ export class RequestVerificationService {
   //#endregion
 
   //#region Public Method
-  public handle(request: RequestWithContext): VerificationResult {
+  public handle(request: RequestWithContext): Partial<VerificationResult> {
     const logger = this._logger.child({
       format: format.combine(format.timestamp())
     });
@@ -55,7 +59,7 @@ export class RequestVerificationService {
   //#endregion
 
   //#region Private Methods
-  private checkSignature(request: RequestWithContext, logger: Logger): VerificationResult {
+  private checkSignature(request: RequestWithContext, logger: Logger): Partial<VerificationResult> {
     const whitelist = this._config.whitelistedUris.map(x => new RegExp(x));
 
     const url = request.url as string;
@@ -90,7 +94,7 @@ export class RequestVerificationService {
     try {
       secretKey = this._credentialService.resolveSecretKey(accessKeyId);
     } catch {
-      return this.unauthorized;
+      return { ...this.unknownKey, result: incomingSignature };
     }
 
     const headers = this.getCleansedHeaders(request, incomingSignature);

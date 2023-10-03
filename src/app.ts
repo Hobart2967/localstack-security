@@ -95,9 +95,9 @@ export class App {
       this._logger.debug(`Bad signature. Rejecting request.`);
       response.setHeader('x-amzn-RequestId', (request as RequestWithContext).requestId);
       response.setHeader('Content-Type', 'application/xml');
-      response.status(result.status);
+      response.status(result.status as number);
 
-      const responseText = `
+      let responsePayload = `
         <ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
           <Error>
             <Type>Sender</Type>
@@ -107,7 +107,18 @@ export class App {
           <RequestId>${(request as RequestWithContext).requestId}</RequestId>
         </ErrorResponse>`;
 
-      response.send(responseText);
+      if (result.result?.credential?.service === 's3') {
+        responsePayload = `<?xml version="1.0" encoding="UTF-8"?>
+          <Error>
+            <Code>InvalidAccessKeyId</Code>
+            <Message>${result.body.message}</Message>
+            <AWSAccessKeyId>${result.result?.credential?.accessKeyId || ''}</AWSAccessKeyId>
+            <RequestId>${(request as RequestWithContext).requestId}</RequestId>
+            <HostId>${new Buffer(request.headers.host || 'a-service').toString('base64')}</HostId>
+          </Error>`;
+      }
+
+      response.send(responsePayload);
 
       next();
     });
