@@ -169,9 +169,14 @@ export class App {
       this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
       this._logger.debug(`${prefix} Body received: ${JSON.stringify(request.body)}`);
 
+      var data = "";
+
+      response.on('data', (chunk) => data += chunk)
+
       response.on("finish", () => {
         this._logger.info(`${prefix} END with ${response.statusCode}`);
-        this._logger.debug(`${prefix} ${JSON.stringify(response.headersSent)}`);
+        this._logger.debug(`${prefix} Headers sent: ${JSON.stringify(response.headersSent)}`);
+        this._logger.debug(`${prefix} Body sent: ${data}`);
       });
 
       next();
