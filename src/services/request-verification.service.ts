@@ -77,7 +77,7 @@ export class RequestVerificationService {
 
     if (authorization && !authorization.startsWith('AWS4-HMAC-SHA256 ')) {
       logger.debug('Unknown authorization handling found. Uri is not whitelisted for this, so flushing a 400');
-      return this.unauthorized
+      return this.unauthorized;
     }
 
     logger.debug('AWS4 Signature found. Counterchecking signature...', request);
@@ -98,6 +98,10 @@ export class RequestVerificationService {
     }
 
     const headers = this.getCleansedHeaders(request, incomingSignature);
+
+    const extraHeadersToInclude = [
+      'range'
+    ].filter(x => Object.keys(request.headers).includes(x));
 
     const extraHeadersToIgnore: { [header: string]: boolean } =
       Object
@@ -120,7 +124,8 @@ export class RequestVerificationService {
       service: incomingSignature.credential.service,
       headers,
       region: incomingSignature.credential.region,
-      extraHeadersToIgnore
+      extraHeadersToIgnore,
+      extraHeadersToInclude
     } as any;
 
     this._logger.debug('Counter-Check request build: ' + JSON.stringify(requestData));
