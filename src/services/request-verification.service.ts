@@ -99,9 +99,10 @@ export class RequestVerificationService {
 
     const extraHeadersToInclude = [
       'range'
-    ].filter(x => Object.keys(request.headers).includes(x));
+    ].filter(x => Object.keys(request.headers).includes(x))
+    .reduce((prev, cur) => ({...prev, [cur]: true }), {});
 
-    const headers = this.getCleansedHeaders(request, incomingSignature, extraHeadersToInclude);
+    const headers = this.getCleansedHeaders(request, incomingSignature);
 
     const extraHeadersToIgnore: { [header: string]: boolean } =
       Object
@@ -162,9 +163,9 @@ export class RequestVerificationService {
     return this.ok;
   }
 
-  private getCleansedHeaders(request: RequestWithContext, incomingSignature: ParsedSignature, extraHeaders: string[]): OutgoingHttpHeaders {
+  private getCleansedHeaders(request: RequestWithContext, incomingSignature: ParsedSignature): OutgoingHttpHeaders {
     const cleansedHeaders: OutgoingHttpHeaders = Object.entries(request.headers)
-      .filter(([header]) => incomingSignature.signedHeaders.concat(extraHeaders).includes(header.toLowerCase()))
+      .filter(([header]) => incomingSignature.signedHeaders.includes(header.toLowerCase()))
       .reduce((prev, [header, value]) => ({
         ...prev,
         [header.toLowerCase()]: value
