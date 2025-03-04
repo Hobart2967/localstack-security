@@ -6,5 +6,6 @@
   ],
   "accessKeys": {
     "my-access-key": "my_secret_key"
-  }
+  },
+  "requestMappers": []
 }
