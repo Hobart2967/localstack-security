@@ -9,6 +9,7 @@ import { RequestMapper, RequestMapperType } from './models/request-mapper.interf
 import { RequestVerificationService } from './services/request-verification.service';
 import { Configuration } from './models/configuration.interface';
 import bodyParser from 'body-parser';
+import { off } from 'process';
 
 @injectable()
 export class App {
@@ -48,13 +49,18 @@ export class App {
     this._webServer.use(async (req, res, next) => {
       const promises = [
         new Promise<void>(resolve => bodyParser.json()(req, res, resolve)),
+        new Promise<void>(resolve => bodyParser.raw()(req, res, resolve)),
         new Promise<void>(resolve => bodyParser.urlencoded({ extended: true })(req, res, resolve)),
         new Promise<void>(resolve => {
-          var data = "";
-
-          req.on('data', (chunk) => data += chunk)
+          const data: any[] = [];
+          let dataStr = '';
+          req.on('data', (chunk) => {
+            dataStr += chunk;
+            data.push(chunk);
+          })
           req.on('end', () => {
-            (req as RequestWithContext).rawBody = data;
+            (req as RequestWithContext).rawBody = Buffer.concat(data);
+            (req as RequestWithContext).rawBodyStr = dataStr;
             resolve();
           });
         })
@@ -177,7 +183,13 @@ export class App {
       this._logger.info(`${prefix} START`);
       this._logger.debug(`${prefix} HTTP Headers received: ${JSON.stringify(request.headers)}`);
       this._logger.debug(`${prefix} Query Parameters received: ${JSON.stringify(request.query)}`);
-      this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
+
+      const stringifiedBody = JSON.stringify(request.body);
+      if (stringifiedBody !== '{}') {
+        this._logger.debug(`${prefix} Body received (RAW): ${request.rawBody}`);
+      } else {
+        this._logger.debug(`${prefix} Body received (RAW): [possibly, but not necessarily binary, ${request.headers['content-type']}]`);
+      }
       this._logger.debug(`${prefix} Body received: ${JSON.stringify(request.body)}`);
 
       var responsePayload = "";

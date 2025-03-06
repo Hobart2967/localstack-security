@@ -1,6 +1,7 @@
 import { Request } from 'express';
 
 export interface RequestWithContext extends Request {
-  rawBody: string;
+  rawBodyStr: string;
+  rawBody: Buffer;
 	requestId: string;
 }
