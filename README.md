@@ -64,7 +64,7 @@ The service layer is accessing a `config.json` which is located at the current w
 IMPORTANT: LocalStack by default will only accept access keys prefixed with LKIA or LSIA. If you want to change this, please follow
 https://docs.localstack.cloud/references/credentials/ for more info.
 
-```json
+```jsonc
 {
 	// Least level of logging (can be debug, info, warn or error)
   "logLevel": "debug",
